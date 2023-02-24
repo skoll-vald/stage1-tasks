@@ -21,6 +21,23 @@ body {
   transition: background-image 1s ease-in-out;
 }
 
+#lang-switcher {
+  width: 130px;
+  background-color: #ffffff;
+  opacity: .6;
+  color: rgb(0, 0, 0);
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#lang-switcher:hover {
+  background-color: #ffffff;
+  opacity: .8;
+}
+
+
 .header {
   display: flex;
   justify-content: space-between;
