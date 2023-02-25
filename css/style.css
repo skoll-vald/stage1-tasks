@@ -16,13 +16,13 @@ body {
   font-size: 16px;
   color: #fff;
   text-align: center;
-  background: url("../assets/img/bg.jpg") center/cover, rgba(0, 0, 0, 0.5);
+  background: center/cover, rgba(0, 0, 0, 0.3);
   background-blend-mode: multiply;
-  transition: background-image 1s ease-in-out;
+  transition: background-image 0.5s ease-in-out;
 }
 
 #lang-switcher {
-  width: 130px;
+  width: 80px;
   background-color: #ffffff;
   opacity: .6;
   color: rgb(0, 0, 0);
@@ -226,26 +226,24 @@ body {
 
 .greeting-container {
   display: flex;
+  flex-direction: column;
   flex-wrap: wrap;
-  justify-content: stretch;
+  justify-content: center;
   align-items: center;
   min-height: 48px;
   width: 100vw;
   font-size: 40px;
 }
 
-.greeting {
-  flex: 1;  
+.greeting { 
   padding: 10px;
   text-align: right;
 }
 
 .name {
-  flex: 1;
-  max-width: 50%;
   padding: 10px;
   font-size: 40px;
-  text-align: left;
+  text-align: center;
   color: #fff;
   background-color: transparent;
   border: 0;
