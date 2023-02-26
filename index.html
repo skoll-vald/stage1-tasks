@@ -11,12 +11,24 @@
 <body>
   <header class="header">
     <div class="player">
+      <div class="progress-container">
+        <div class="current-track-title"></div>
+        <span class="current-time">0:00 /</span>
+        <span class="current-duration">0:00</span>
+        <input type="range" class="progress-bar" min="0" max="100" value="0">
+      </div>
       <div class="player-controls">
         <button class="play-prev player-icon"></button>
         <button class="play player-icon"></button>
         <button class="play-next player-icon"></button>
       </div>
-      <ul class="play-list"></ul>
+      <div class="volume-container">
+        <button class="player-icon mute"></button>
+        <input type="range" class="volume-slider" min="0" max="1" step="0.01" value="1">
+      </div>
+      <ul class="play-list">
+
+      </ul>
     </div>
     <div class="weather">
       <input type="text" class="city" value="Minsk" id="city-input"/>

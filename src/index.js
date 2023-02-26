@@ -14,6 +14,11 @@ let currentLang = localStorage.getItem('currentLang') || 'en-US';
 let langCode = currentLang.split('-')[0]; // Define langCode here
 updateLangButtonText();
 
+langSwitcherButton.addEventListener('change', () => {
+  langCode = currentLang.split('-')[0];
+  getRandomQuote();
+});
+
 langSwitcherButton.addEventListener('click', () => {
   if (currentLang === 'en-US') {
     currentLang = 'ru-RU';
@@ -28,12 +33,24 @@ langSwitcherButton.addEventListener('click', () => {
 function updateLangButtonText() {
   const langCode = currentLang.split('-')[0];
   console.log('langCode in updateLangButtonText:', langCode);
-  langSwitcherButton.textContent = currentLang;
+  if (langCode === 'en') {
+    langSwitcherButton.textContent = 'English';
+  } else if (langCode === 'ru') {
+    langSwitcherButton.textContent = 'Русский';
+  }
   localStorage.setItem('currentLang', currentLang);
   const storedCity = localStorage.getItem('storedCity');
   if (storedCity) {
     getWeatherData(storedCity, langCode);
-  } else {
+  } else {{
+    if (langCode === 'ru') {
+      cityInput.value = 'Минск';
+      getWeatherData('Minsk', langCode);
+    } else {
+      cityInput.value = 'Minsk';
+      getWeatherData('Minsk', langCode);
+    }
+  }
     getWeatherData('Minsk', langCode);
   }
 }
@@ -151,7 +168,13 @@ if (storedCity) {
   cityInput.value = storedCity;
   getWeatherData(storedCity, langCode);
 } else {
-  getWeatherData('Minsk', langCode);
+  if (langCode === 'ru') {
+    cityInput.value = 'Минск';
+    getWeatherData('Minsk', langCode);
+  } else {
+    cityInput.value = 'Minsk';
+    getWeatherData('Minsk', langCode);
+  }
 }
 
 // Add event listener to the input field
@@ -159,7 +182,6 @@ const inputField = document.getElementById('city-input');
 
 inputField.addEventListener('keydown', event => {
   if (event.key === 'Enter') {
-    const city = inputField.value.trim();
     const langCode = currentLang.split('-')[0];
     getWeatherData(cityInput.value, langCode);
     localStorage.setItem('storedCity', cityInput.value);
@@ -245,7 +267,7 @@ const changeQuoteButton = document.querySelector('.change-quote');
 
 async function getRandomQuote() {
   try {
-    const response = await fetch('data.json');
+    const response = await fetch(`${langCode}-data.json`);
     const data = await response.json();
     const { quote, author } = data[Math.floor(Math.random() * data.length)];
     quoteElement.textContent = quote;
@@ -258,3 +280,183 @@ async function getRandomQuote() {
 document.addEventListener('DOMContentLoaded', getRandomQuote);
 
 changeQuoteButton.addEventListener('click', getRandomQuote);
+
+//PLAYER
+const audio = new Audio();
+const currentTrackTitle = document.querySelector('.current-track-title');
+const currentTrackDuration = document.querySelector('.current-duration');
+const currentTimeElement = document.querySelector('.current-time');
+let currentTrackIndex = 0;
+
+
+const playlist = [
+  {
+    title: 'Aqua Caelestis',
+    duration: '0:39',
+    source: 'assets/sounds/Aqua Caelestis.mp3'
+  },
+  {
+    title: 'Ennio Morricone',
+    duration: '1:37',
+    source: 'assets/sounds/Ennio Morricone.mp3'
+  },
+  {
+    title: 'River Flows In You',
+    duration: '1:37',
+    source: 'assets/sounds/River Flows In You.mp3'
+  },
+  {
+    title: 'Summer Wind',
+    duration: '1:50',
+    source: 'assets/sounds/Summer Wind.mp3'
+  }
+];
+
+
+let playlistElement = document.querySelector(".play-list");
+playlist.forEach(function(track) {
+  let trackElement = document.createElement("li");
+  trackElement.classList.add("track");
+  trackElement.innerHTML = `
+    <span class="track-title">${track.title}</span>
+  `;
+  playlistElement.appendChild(trackElement);
+});
+
+const playButton = document.querySelector(".play");
+
+console.log(playlist[currentTrackIndex])
+
+function toggleAudioPlayback(audio, playButton) {
+  if (audio.paused) {
+    audio.play();
+    playButton.classList.replace("play", "pause");
+  } else {
+    audio.pause();
+    playButton.classList.replace("pause", "play");
+  }
+}
+
+playButton.addEventListener("click", function() {
+  toggleAudioPlayback(audio, playButton)
+});
+
+loadTrack(playlist[currentTrackIndex]);
+const nextButton = document.querySelector(".play-next");
+const prevButton = document.querySelector(".play-prev");
+
+function changeTrack(direction) {
+  currentTrackIndex = (currentTrackIndex + direction + playlist.length) % playlist.length;
+  loadTrack(playlist[currentTrackIndex]);
+  toggleAudioPlayback(audio, playButton);
+  if (audio.paused) {
+    audio.play();
+  }
+}
+
+nextButton.addEventListener("click", function() {
+  changeTrack(1);
+});
+
+prevButton.addEventListener("click", function() {
+  changeTrack(-1);
+});
+
+const trackElements = document.querySelectorAll('.play-list li.track');
+
+function highlightCurrentTrack(currentTrackIndex) {
+  // get all the li elements in the playlist
+  const trackElements = document.querySelectorAll('.play-list li.track');
+  
+  // remove the 'current-track' class from all li elements
+  trackElements.forEach((el) => {
+    el.classList.remove('current-track');
+  });
+  
+  // add the 'current-track' class to the current track li element
+  const currentTrackElement = trackElements[currentTrackIndex];
+  currentTrackElement.classList.add('current-track');
+}
+
+function loadTrack(track) {
+  audio.pause();
+  audio.currentTime = 0;
+  audio.src = track.source;
+  currentTrackTitle.textContent = track.title;
+  currentTrackDuration.textContent = track.duration;
+  highlightCurrentTrack(currentTrackIndex);
+
+  audio.addEventListener('loadedmetadata', function() {
+    currentTrackTitle.textContent = track.title;
+    currentTrackDuration.textContent = formatTime(audio.duration);
+    progressBar.max = audio.duration;
+    progressBar.value = 0;
+  });
+
+  if (playButton.classList.contains('pause')) {
+    // if the play button already has the 'pause' class, keep it as it is
+    playButton.classList.replace("pause", "pause");
+  } else {
+    // if the play button doesn't have the 'pause' class, replace the 'play' class with the 'pause' class
+    playButton.classList.replace("play", "pause");
+  }
+}
+
+
+// update progress bar and current time
+audio.addEventListener('timeupdate', function() {
+  const currentTime = audio.currentTime;
+  const duration = audio.duration;
+  const progressPercent = (currentTime / duration) * 100;
+
+  const progressBar = document.querySelector('.progress-bar');
+
+  progressBar.value = progressPercent;
+  currentTimeElement.innerHTML = formatTime(currentTime) + ' /';
+});
+
+// format time to be displayed in minutes and seconds
+function formatTime(time) {
+  const minutes = Math.floor(time / 60);
+  const seconds = Math.floor(time % 60).toString().padStart(2, '0');
+  return `${minutes}:${seconds}`;
+}
+
+// seek to a specific time when the progress bar is clicked
+const progressBar = document.querySelector('.progress-bar');
+progressBar.addEventListener('input', function() {
+  const duration = audio.duration;
+  const seekTime = (this.value / 100) * duration;
+
+  audio.currentTime = seekTime;
+});
+
+
+
+audio.addEventListener('ended', function() {
+  currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+  loadTrack(playlist[currentTrackIndex]);
+  audio.play();
+});
+
+//VOLUME
+const volumeSlider = document.querySelector('.volume-slider');
+const muteButton = document.querySelector('.mute');
+
+muteButton.addEventListener('click', toggleMute);
+
+volumeSlider.addEventListener('input', () => {
+  audio.volume = volumeSlider.value;
+});
+
+function toggleMute() {
+  if (audio.muted) {
+    audio.muted = false;
+    muteButton.classList.remove('muted');
+    volumeSlider.value = audio.volume;
+  } else {
+    audio.muted = true;
+    muteButton.classList.add('muted');
+    volumeSlider.value = 0;
+  }
+}
